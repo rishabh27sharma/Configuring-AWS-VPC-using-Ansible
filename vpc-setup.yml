@@ -1,0 +1,9 @@
+- hosts: localhost
+  roles:
+  - name: "Creating VPC"
+    role: "/aws-vpc/create-vpc"
+
+  - name: "Launching ec2-instance"
+    role: "/aws-vpc/ec2-launch"
+
+

@@ -1,0 +1,12 @@
+---
+# vars file for ec2-launch
+
+image_id: "ami-0eeb03e72075b9bcc"
+instance_type: "t2.micro"
+region: "ap-south-1"
+key: "arth"
+aws_access_key: "enter access key"
+aws_secret_key: "enter secret key"
+OS_Names:
+        - "EC2-Ansible"
+

@@ -1,0 +1,81 @@
+---
+# tasks file for create-vpc
+
+  - name: Create VPC over AWS Cloud
+    ec2_vpc_net:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      name: "{{ vpc_name }}"
+      cidr_block: "{{ vpc_cidr_block }}"
+      region: "{{ region }}"
+      # enable dns support
+      dns_support: yes
+      # enable dns hostnames
+      dns_hostnames: yes
+      tenancy: default
+      state: present
+    register: ec2_vpc_net_result
+
+  # create an internet gateway for the vpc
+  - name: Create Internet Gateway for VPC
+    ec2_vpc_igw:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      vpc_id: "{{ ec2_vpc_net_result.vpc.id }}"
+      region: "{{ region }}"
+      state: present
+      tags:
+        Name: "{{ igw_name }}"
+    register: igw_result
+
+
+  - name: Create VPC Subnet
+    ec2_vpc_subnet:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      vpc_id: "{{ ec2_vpc_net_result.vpc.id }}"
+      region: "{{ region }}"
+      az: "{{ zone }}"      # az is the availability zone
+      state: present
+      cidr: "{{ subnet_cidr_block }}"
+      # enable public ip
+      map_public: yes
+      resource_tags:
+        Name: "{{ subnet_name }}"
+    register: subnet_result
+
+
+  - name: Create VPC Public Subnet Route Table
+    ec2_vpc_route_table:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      vpc_id: "{{ ec2_vpc_net_result.vpc.id }}"
+      region: "{{ region }}"
+      state: present
+      tags:
+        Name: "{{ route_table_name }}"
+      subnets: [ "{{ subnet_result.subnet.id }}" ]
+
+    # create routes
+      routes:
+        - dest: "{{ destination_cidr_block }}"
+          gateway_id: "{{ igw_result.gateway_id }}"
+    register: public_route_table
+
+  - name: Create Security Group
+    ec2_group:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      vpc_id: "{{ ec2_vpc_net_result.vpc.id }}"
+      region: "{{ region }}"
+      state: present
+      name: "{{ security_group_name }}"
+      description: "{{ security_group_name }}"
+      tags:
+        Name: "{{ security_group_name  }}"
+      rules:
+      - proto: all
+        cidr_ip: "{{ port22_cidr_block }}"
+        rule_desc: allow all traffic
+    register: security_group_results
+

@@ -1,0 +1,17 @@
+---
+# vars file for create-vpc
+
+aws_access_key: "enter access key"
+aws_secret_key: "enter secret key"
+title: "ARTH"
+vpc_name: "{{ title }} VPC"
+igw_name: "{{ title }} Igw"
+subnet_name: "{{ title }} Subnet"
+route_table_name: "{{ title }} Route Table"
+security_group_name: "{{ title }} SG"
+vpc_cidr_block: '11.0.0.0/16'
+subnet_cidr_block: '11.0.1.0/24'
+destination_cidr_block: '0.0.0.0/0'
+port22_cidr_block: '0.0.0.0/0'
+region: "ap-south-1"
+zone: "ap-south-1a"

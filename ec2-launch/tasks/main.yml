@@ -1,0 +1,21 @@
+---
+# tasks file for ec2-launch
+
+- name:  "Provisioning ec2 instance over AWS Cloud"
+  ec2:
+    image: "{{ image_id }}"
+    instance_type: "{{ instance_type }}"
+    region: "{{ region }}"
+    key_name: "{{ key }}"
+    wait: yes
+    count: 1
+    state: present
+    vpc_subnet_id: "{{ subnet_result.subnet.id }}"
+    assign_public_ip: yes
+    group_id: "{{ security_group_results.group_id }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    instance_tags:
+            Name: "{{ item }}"
+  loop: "{{ OS_Names }}"
+
